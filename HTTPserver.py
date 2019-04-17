@@ -33,6 +33,8 @@ while True:
     client_connection, client_address = listen_socket.accept()
     # o metodo .recv recebe os dados enviados por um cliente atraves do socket
     request = client_connection.recv(1024)
+    #quebra os dados recebidos em um vetor
+    request_vector = request.split()
     # imprime na tela o que o cliente enviou ao servidor
     print request
     # declaracao da resposta do servidor
