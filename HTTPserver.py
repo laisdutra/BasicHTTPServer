@@ -37,6 +37,13 @@ while True:
     request_vector = request.split()
     # imprime na tela o que o cliente enviou ao servidor
     print request
+    #analisa o comando desejado
+    if request_vector[0] == 'GET':
+        print 'vai ler o nome do arquivo'
+        #LER O NOME DO ARQUIVO - FALTA
+    else:
+        #RETORNAR UM ERRO DE COMANDO INVÁLIDO - FALTA
+        print 'vai retornar o erro'
     # declaracao da resposta do servidor
     http_response = """\
 HTTP/1.1 200 OK
