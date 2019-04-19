@@ -55,11 +55,9 @@ HTTP/1.1 400 Bad Request\r\n\r\n
             request_vector = request.split()
             # imprime na tela o que o cliente enviou ao servidor
             print request
-    else:
+    if request_vector[0] == 'GET':
         if request_vector[1] == '/':
-            print request_vector[1]
             request_vector[1] = '/index.html'
-            print request_vector[1]
         #verifica se o arquivo existe
         if os.path.isfile(request_vector[1][1:]):
             http_response =  "HTTP/1.1 200 OK\r\n\r\n"
