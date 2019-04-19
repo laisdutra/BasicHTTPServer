@@ -8,6 +8,7 @@
 
 # importacao das bibliotecas
 import socket
+import os
 
 # definicao do host e da porta do servidor
 HOST = '' # ip do servidor (em branco)
@@ -37,14 +38,10 @@ while True:
     request_vector = request.split()
     # imprime na tela o que o cliente enviou ao servidor
     print request
-    #analisa o comando desejado
-    if request_vector[0] == 'GET':
-        #lê o nome do arquivo
-        nome_arquivo = request_vector[1][1:-5]
-        #DEVE PROCURAR O ARQUIVO REQUERIDO - FALTA
-    else:
-        #resposta do servidor para comando diferente de GET
-        http_response = """
+    #analisa o comando digitado
+    if request_vector[0] != 'GET':
+        while request_vector[0] != 'GET':
+            http_response = """
 HTTP/1.1 400 Bad Request\r\n\r\n
 <html>
     <head></head>
@@ -52,14 +49,37 @@ HTTP/1.1 400 Bad Request\r\n\r\n
         <h1>400 Bad Resquest</h1>
     </body>
 </html>\r\n"""
-    # declaracao da resposta do servidor
-    #http_response = """\
-#HTTP/1.1 200 OK
-
-#Hello, World!
-#"""
-    # servidor retorna o que foi solicitado pelo cliente (neste caso a resposta e generica)
-    client_connection.send(http_response)
+            client_connection.send(http_response)
+            request = client_connection.recv(1024)
+            #quebra os dados recebidos em um vetor
+            request_vector = request.split()
+            # imprime na tela o que o cliente enviou ao servidor
+            print request
+    else:
+        if request_vector[1] == '/':
+            print request_vector[1]
+            request_vector[1] = '/index.html'
+            print request_vector[1]
+        #verifica se o arquivo existe
+        if os.path.isfile(request_vector[1][1:]):
+            http_response =  "HTTP/1.1 200 OK\r\n\r\n"
+            #abre o arquivo para leitura
+            arquivo = open(request_vector[1][1:], 'r')
+            #lê o arquivo
+            conteudo = arquivo.read()
+            arquivo.close()
+            client_connection.send(http_response)
+            client_connection.send(conteudo)
+        else:
+            http_response = """HTTP/1.1 404 Not Found\r\n\r\n
+<html>
+    <head></head>
+    <body>
+        <h1>404 Not Found</h1>
+    </body>
+</html>\r\n"""
+            client_connection.send(http_response)
+        
     # encerra a conexao
     client_connection.close()
 
