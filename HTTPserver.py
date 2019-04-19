@@ -39,17 +39,25 @@ while True:
     print request
     #analisa o comando desejado
     if request_vector[0] == 'GET':
-        print 'vai ler o nome do arquivo'
-        #LER O NOME DO ARQUIVO - FALTA
+        #lê o nome do arquivo
+        nome_arquivo = request_vector[1][1:-5]
+        #DEVE PROCURAR O ARQUIVO REQUERIDO - FALTA
     else:
-        #RETORNAR UM ERRO DE COMANDO INVÁLIDO - FALTA
-        print 'vai retornar o erro'
+        #resposta do servidor para comando diferente de GET
+        http_response = """
+HTTP/1.1 400 Bad Request\r\n\r\n
+<html>
+    <head></head>
+    <body>
+        <h1>400 Bad Resquest</h1>
+    </body>
+</html>\r\n"""
     # declaracao da resposta do servidor
-    http_response = """\
-HTTP/1.1 200 OK
+    #http_response = """\
+#HTTP/1.1 200 OK
 
-Hello, World!
-"""
+#Hello, World!
+#"""
     # servidor retorna o que foi solicitado pelo cliente (neste caso a resposta e generica)
     client_connection.send(http_response)
     # encerra a conexao
