@@ -63,8 +63,6 @@ while True:
             arquivo.close()
             client_connection.send(http_response)
             client_connection.send(str(conteudo))
-            #encerra a conexao
-            client_connection.close()
         elif request_vector[1] == '/':
             http_response =  "HTTP/1.1 200 OK\r\n\r\n"
             arquivo = open('index.html', 'r')
@@ -73,8 +71,6 @@ while True:
             arquivo.close()
             client_connection.send(http_response)
             client_connection.send(str(conteudo))
-            #encerra a conexao
-            client_connection.close()
         else:
             http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
             conteudo = """\
@@ -98,8 +94,8 @@ while True:
         </body>
     </html>\r\n
 """
-    client_connection.send(http_response)
-    client_connection.send(conteudo)
+        client_connection.send(http_response)
+        client_connection.send(conteudo)
 
 # encerra o socket do servidor
 listen_socket.close()
