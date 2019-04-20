@@ -37,7 +37,7 @@ while True:
     # o metodo .recv recebe os dados enviados por um cliente atraves do socket
     request = client_connection.recv(1024)
     # imprime na tela o que o cliente enviou ao servidor
-    print request
+   
     #quebra os dados recebidos em um vetor
     request_vector = request.split()
     #tamanho do vetor
@@ -45,7 +45,8 @@ while True:
     if tamanho == 3:
         #checa se mandou GET e o protocolo
         if (request_vector[0] == 'GET') and (request_vector[2][0:8] == 'HTTP/1.1') :
-        #checa se o arquivo existe
+            print request
+            #checa se o arquivo existe
             if os.path.isfile(request_vector[1][1:]):
                 http_response =  "HTTP/1.1 200 OK\r\n\r\n"
                 #abre o arquivo para leitura
@@ -55,6 +56,8 @@ while True:
                 arquivo.close()
                 client_connection.send(http_response)
                 client_connection.send(str(conteudo))
+                # encerra a conexao
+                client_connection.close()
             elif request_vector[1] == '/':
                 http_response =  "HTTP/1.1 200 OK\r\n\r\n"
                 arquivo = open('index.html', 'r')
@@ -63,6 +66,8 @@ while True:
                 arquivo.close()
                 client_connection.send(http_response)
                 client_connection.send(str(conteudo))
+                 # encerra a conexao
+                client_connection.close()
             
             else :
                 http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
@@ -103,7 +108,7 @@ while True:
         client_connection.send(conteudo)
         
 
-# encerra a conexao
+    # encerra a conexao
 client_connection.close()
 
 # encerra o socket do servidor
