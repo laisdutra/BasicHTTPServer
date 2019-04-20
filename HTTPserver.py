@@ -37,78 +37,68 @@ while True:
     # o metodo .recv recebe os dados enviados por um cliente atraves do socket
     request = client_connection.recv(1024)
     # imprime na tela o que o cliente enviou ao servidor
-   
+    print request
     #quebra os dados recebidos em um vetor
     request_vector = request.split()
     #tamanho do vetor
     tamanho = len(request_vector)
-    if tamanho == 3:
-        #checa se mandou GET e o protocolo
-        if (request_vector[0] == 'GET') and (request_vector[2][0:8] == 'HTTP/1.1') :
-            print request
-            #checa se o arquivo existe
-            if os.path.isfile(request_vector[1][1:]):
-                http_response =  "HTTP/1.1 200 OK\r\n\r\n"
-                #abre o arquivo para leitura
-                arquivo = open(request_vector[1][1:], 'r')
-                #lê o arquivo
-                conteudo = arquivo.read()
-                arquivo.close()
-                client_connection.send(http_response)
-                client_connection.send(str(conteudo))
-                # encerra a conexao
-                client_connection.close()
-            elif request_vector[1] == '/':
-                http_response =  "HTTP/1.1 200 OK\r\n\r\n"
-                arquivo = open('index.html', 'r')
-                #lê o arquivo
-                conteudo = arquivo.read()
-                arquivo.close()
-                client_connection.send(http_response)
-                client_connection.send(str(conteudo))
-                 # encerra a conexao
-                client_connection.close()
+    #caso o tenha espaço no nome do arquivo
+    if request_vector[1][:5] != '.html' and tamanho >= 2:
+        nome_arquivo = ""
+        for i in range(1, tamanho-1):
+            nome_arquivo += request_vector[i] + ' '
+        nome_arquivo = nome_arquivo[:-1]
+    else:
+        nome_arquivo = request_vector[1]
+    #checa se mandou GET e o protocolo
+    if (request_vector[0] == 'GET') and (request_vector[tamanho-1] == 'HTTP/1.1') :
+    #checa se o arquivo existe
+        if os.path.isfile(nome_arquivo[1:]):
+            http_response =  "HTTP/1.1 200 OK\r\n\r\n"
+            #abre o arquivo para leitura
+            arquivo = open(nome_arquivo[1:], 'r')
+            #lê o arquivo
+            conteudo = arquivo.read()
+            arquivo.close()
+            client_connection.send(http_response)
+            client_connection.send(str(conteudo))
+        elif request_vector[1] == '/':
+            http_response =  "HTTP/1.1 200 OK\r\n\r\n"
+            arquivo = open('index.html', 'r')
+            #lê o arquivo
+            conteudo = arquivo.read()
+            arquivo.close()
+            client_connection.send(http_response)
+            client_connection.send(str(conteudo))
             
-            else :
-                http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
-                conteudo = """\
-            <html>
-                <head></head>
-                <body>
-                    <h1>404 Not Found</h1>
-                </body>
-            </html>\r\n
-             """
-                client_connection.send(http_response)
-                client_connection.send(conteudo)
-        # se nao for GET
-        else:
-            http_response = "HTTP/1.1 400 Bad Request\r\n\r\n"
+        else :
+            http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
             conteudo = """\
-        <html>
-            <head></head>
-                <body>
-                    <h1>400 Bad Resquest</h1>
-                </body>
-        </html>\r\n
-        """
+<html>
+    <head></head>
+    <body>
+        <h1>404 Not Found</h1>
+    </body>
+</html>\r\n
+"""
             client_connection.send(http_response)
             client_connection.send(conteudo)
+    #se nao for GET ou não atende ao protocolo
     else:
         http_response = "HTTP/1.1 400 Bad Request\r\n\r\n"
         conteudo = """\
-        <html>
-            <head></head>
-                <body>
-                    <h1>400 Bad Resquest</h1>
-                </body>
-        </html>\r\n
-        """
-        client_connection.send(http_response)
-        client_connection.send(conteudo)
+<html>
+    <head></head>
+    <body>
+        <h1>400 Bad Resquest</h1>
+    </body>
+</html>\r\n
+"""
+    client_connection.send(http_response)
+    client_connection.send(conteudo)
         
 
-    # encerra a conexao
+# encerra a conexao
 client_connection.close()
 
 # encerra o socket do servidor
