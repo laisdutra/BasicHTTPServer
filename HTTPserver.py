@@ -29,73 +29,46 @@ listen_socket.listen(1)
 # imprime que o servidor esta pronto para receber conexoes
 print 'Servidor HTTP aguardando conexoes na porta %s ...' % PORT
 
+def abre_pagina(pagina):
+    f = open(pagina, 'r')
+    conteudo = f.read()
+    f.close()
 
-# aguarda por novas conexoes
-client_connection, client_address = listen_socket.accept()
+    return conteudo
+
 while True:
-  
+    # aguarda por novas conexoes
+    client_connection, client_address = listen_socket.accept()
     # o metodo .recv recebe os dados enviados por um cliente atraves do socket
     request = client_connection.recv(1024)
     # imprime na tela o que o cliente enviou ao servidor
     print request
-    #quebra os dados recebidos em um vetor
+    # quebra os dados recebidos em um vetor
     request_vector = request.split()
-    #tamanho do vetor
-    tamanho = len(request_vector)
-    if tamanho > 1:
-        #caso o tenha espaço no nome do arquivo
-        if request_vector[1][:5] != '.html':
-            nome_arquivo = ""
-            for i in range(1, tamanho-1):
-                nome_arquivo += request_vector[i] + ' '
-            nome_arquivo = nome_arquivo[:-1]
+    
+    caminho = request_vector[1]
+    
+    # verifica o protocolo HTTP
+    if request_vector[0] == 'GET' and caminho[0] == '/' and request_vector[2] == 'HTTP/1.1':
+        # testa existencia da página
+        if os.path.isfile(caminho[1:]):
+            http_response =  "HTTP/1.1 200 OK\r\n\r\n" + abre_pagina(caminho[1:])
+            
+        elif caminho == '/':
+            http_response =  "HTTP/1.1 200 OK\r\n\r\n" + abre_pagina('index.html')
+
         else:
-            nome_arquivo = request_vector[1]
-    #checa se mandou GET e o protocolo
-    if (request_vector[0] == 'GET') and (request_vector[tamanho-1] == 'HTTP/1.1') :
-    #checa se o arquivo existe
-        if os.path.isfile(nome_arquivo[1:]):
-            http_response =  "HTTP/1.1 200 OK\r\n\r\n"
-            #abre o arquivo para leitura
-            arquivo = open(nome_arquivo[1:], 'r')
-            #lê o arquivo
-            conteudo = arquivo.read()
-            arquivo.close()
-            client_connection.send(http_response)
-            client_connection.send(str(conteudo))
-        elif request_vector[1] == '/':
-            http_response =  "HTTP/1.1 200 OK\r\n\r\n"
-            arquivo = open('index.html', 'r')
-            #lê o arquivo
-            conteudo = arquivo.read()
-            arquivo.close()
-            client_connection.send(http_response)
-            client_connection.send(str(conteudo))
-        else:
-            http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
-            conteudo = """\
-    <html>
-        <head></head>
-        <body>
-            <h1>404 Not Found</h1>
-        </body>
-    </html>\r\n
-"""
-            client_connection.send(http_response)
-            client_connection.send(conteudo)
-    #se nao for GET ou não atende ao protocolo
+            http_response = "HTTP/1.1 404 Not Found\r\n\r\n" + abre_pagina('404.html')
+
+    # se não atende ao protocolo
     else:
-        http_response = "HTTP/1.1 400 Bad Request\r\n\r\n"
-        conteudo = """\
-    <html>
-        <head></head>
-        <body>
-            <h1>400 Bad Resquest</h1>
-        </body>
-    </html>\r\n
-"""
-        client_connection.send(http_response)
-        client_connection.send(conteudo)
+        http_response = "HTTP/1.1 400 Bad Request\r\n\r\n" + abre_pagina('400.html')
+
+    # servidor retorna o que foi solicitado pelo cliente
+    client_connection.send(http_response)
+    
+    # encerra a conexão
+    client_connection.close()
 
 # encerra o socket do servidor
 listen_socket.close()
