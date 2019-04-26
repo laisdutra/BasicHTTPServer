@@ -36,6 +36,14 @@ def abre_pagina(pagina):
 
     return conteudo
 
+def verifica_protocolo(pedido_cliente):
+    if len(pedido_cliente) < 3:
+        return False
+    elif pedido_cliente[0] == 'GET' and pedido_cliente[1][0] == '/' and pedido_cliente[2] == 'HTTP/1.1':
+        return True
+    else:
+        return False
+
 while True:
     # aguarda por novas conexoes
     client_connection, client_address = listen_socket.accept()
@@ -46,15 +54,14 @@ while True:
     # quebra os dados recebidos em um vetor
     request_vector = request.split()
     
-    caminho = request_vector[1]
-    
     # verifica o protocolo HTTP
-    if request_vector[0] == 'GET' and caminho[0] == '/' and request_vector[2] == 'HTTP/1.1':
+    if verifica_protocolo(request_vector):
+        
         # testa existencia da página
-        if os.path.isfile(caminho[1:]):
-            http_response =  "HTTP/1.1 200 OK\r\n\r\n" + abre_pagina(caminho[1:])
+        if os.path.isfile(request_vector[1][1:]):
+            http_response =  "HTTP/1.1 200 OK\r\n\r\n" + abre_pagina(request_vector[1][1:])
             
-        elif caminho == '/':
+        elif request_vector[1] == '/':
             http_response =  "HTTP/1.1 200 OK\r\n\r\n" + abre_pagina('index.html')
 
         else:
